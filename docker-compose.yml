@@ -48,9 +48,6 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    environment:
-      VITE_API_URL: http://backend:3000
-      VITE_MQTT_WS_URL: ws://mqtt:9001
     depends_on:
       - backend
     ports:

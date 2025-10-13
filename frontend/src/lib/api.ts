@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// Permite configurar a URL via window.ENV ou variável de ambiente
+const API_URL = (window as any).ENV?.API_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 export const api = axios.create({ baseURL: API_URL })
 
