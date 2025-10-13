@@ -11,8 +11,11 @@ export class TasksController {
   constructor(private readonly tasks: TasksService) {}
 
   @Get()
-  list(@Req() req: any, @Query('status') status?: 'PENDING' | 'DONE') {
-    return this.tasks.list(req.user.userId, { status });
+  list(@Req() req: any, @Query('status') status?: 'PENDING' | 'DONE', @Query('from') from?: string, @Query('to') to?: string) {
+    const filters: any = { status }
+    if (from) filters.from = new Date(from)
+    if (to) filters.to = new Date(to)
+    return this.tasks.list(req.user.userId, filters);
   }
 
   @Post()

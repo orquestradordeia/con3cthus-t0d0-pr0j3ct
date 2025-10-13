@@ -11,12 +11,19 @@ export class TasksService {
     private readonly mqtt: MqttService,
   ) {}
 
-  async list(userId: string, filters?: { status?: 'PENDING' | 'DONE' }) {
-    const key = `tasks:${userId}:${filters?.status ?? 'ALL'}`
+  async list(userId: string, filters?: { status?: 'PENDING' | 'DONE'; from?: Date; to?: Date }) {
+    const key = `tasks:${userId}:${filters?.status ?? 'ALL'}:${filters?.from?.toISOString() ?? 'NONE'}:${filters?.to?.toISOString() ?? 'NONE'}`
     const cached = await this.cache.get<any[]>(key)
     if (cached) return cached
+    const where: any = { userId }
+    if (filters?.status) where.status = filters.status
+    if (filters?.from || filters?.to) {
+      where.createdAt = {}
+      if (filters.from) where.createdAt.gte = filters.from
+      if (filters.to) where.createdAt.lte = filters.to
+    }
     const data = await this.prisma.task.findMany({
-      where: { userId, status: filters?.status as any },
+      where,
       orderBy: { createdAt: 'desc' },
     })
     await this.cache.set(key, data, 30)
