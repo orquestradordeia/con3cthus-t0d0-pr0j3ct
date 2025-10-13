@@ -1,0 +1,17 @@
+node_modules
+dist
+.git
+.gitignore
+**/.env
+**/.env.local
+**/.env.*
+coverage
+frontend/node_modules
+frontend/dist
+backend/node_modules
+backend/dist
+mobile/node_modules
+mobile/.expo
+.DS_Store
+
+

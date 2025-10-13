@@ -1,0 +1,14 @@
+node_modules
+dist
+.DS_Store
+**/.env
+coverage
+frontend/dist
+backend/dist
+mobile/.expo
+mobile/android
+mobile/ios
+.vite
+*.log
+
+
