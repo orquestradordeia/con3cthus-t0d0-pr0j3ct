@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, Route, Routes, useNavigate } from 'react-router-dom'
-import { createTask, deleteTask, listTasks, login, register, Task, updateTask } from '../lib/api'
+import { createTask, deleteTask, listTasks, login, me, register, Task, updateTask } from '../lib/api'
 import { createMqtt } from '../lib/mqttClient'
 
 function useAuth() {
@@ -57,7 +57,14 @@ function RegisterPage() {
 function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [title, setTitle] = useState('')
-  useEffect(() => { (async () => setTasks(await listTasks()))() }, [])
+  const [from, setFrom] = useState('')
+  const [to, setTo] = useState('')
+  useEffect(() => {
+    (async () => {
+      const data = await listTasks(undefined, from || undefined, to || undefined)
+      setTasks(data)
+    })()
+  }, [from, to])
   const create = async () => {
     const t = await createTask({ title })
     setTasks(prev => [t, ...prev])
@@ -73,17 +80,22 @@ function TasksPage() {
   }
 
   useEffect(() => {
+    let mounted = true
     const token = localStorage.getItem('token') || undefined
     const client = createMqtt(token)
-    const userTopic = 'users/+/tasks/created' // em produção, preferir tópico do usuário
-    client.subscribe(userTopic)
+    ;(async () => {
+      const profile = await me()
+      if (!mounted) return
+      const userTopic = `users/${profile.id}/tasks/created`
+      client.subscribe(userTopic)
+    })()
     client.on('message', (topic, payload) => {
       try {
         const data = JSON.parse(payload.toString())
         if (data?.id && data?.title) setTasks(prev => [data as Task, ...prev])
       } catch {}
     })
-    return () => { client.end() }
+    return () => { mounted = false; client.end() }
   }, [])
 
   return (
@@ -92,6 +104,10 @@ function TasksPage() {
       <div style={{ display: 'flex', gap: 8 }}>
         <input placeholder="Nova tarefa" value={title} onChange={e => setTitle(e.target.value)} />
         <button onClick={create}>Criar</button>
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <input type="date" value={from} onChange={e => setFrom(e.target.value)} />
+        <input type="date" value={to} onChange={e => setTo(e.target.value)} />
       </div>
       <ul style={{ listStyle: 'none', padding: 0 }}>
         {tasks.map(t => (
