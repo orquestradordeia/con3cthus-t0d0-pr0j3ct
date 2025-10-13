@@ -1,0 +1,26 @@
+{
+  "name": "desafio-conecthus-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "expo": "^51.0.0",
+    "expo-router": "^3.5.24",
+    "mqtt": "^5.10.1",
+    "react": "^18.3.1",
+    "react-native": "0.76.0",
+    "@react-native-async-storage/async-storage": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.10"
+  }
+}
+
+
