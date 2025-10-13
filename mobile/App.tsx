@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { SafeAreaView, Text, TextInput, Button, View, FlatList, TouchableOpacity } from 'react-native'
+import { SafeAreaView, Text, TextInput, Button, View, FlatList, TouchableOpacity, Modal } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { createTask, deleteTask, listTasks, login as apiLogin, Task, toggleTask } from './src/api'
+import { createTask, deleteTask, listTasks, login as apiLogin, Task, toggleTask, me } from './src/api'
 import { createMqtt } from './src/mqtt'
 
 export default function App() {
@@ -41,19 +41,21 @@ export default function App() {
 function TasksScreen({ onLogout }: { onLogout: () => void }) {
   const [tasks, setTasks] = useState<Task[]>([])
   const [title, setTitle] = useState('')
+  const [open, setOpen] = useState<{ visible: boolean; task?: Task }>({ visible: false })
 
   useEffect(() => { (async () => setTasks(await listTasks()))() }, [])
 
   useEffect(() => {
     (async () => {
       const tok = await AsyncStorage.getItem('token')
+      const profile = await me()
       const c = createMqtt(tok || undefined)
-      c.subscribe('users/+/tasks/created')
+      c.subscribe(`users/${profile.id}/tasks/created`)
       c.on('message', (_, payload) => {
         try { const data = JSON.parse(payload.toString()); if (data?.id) setTasks(prev => [data as Task, ...prev]) } catch {}
       })
-      return () => c.end()
     })()
+    return () => {}
   }, [])
 
   const create = async () => {
@@ -88,13 +90,25 @@ function TasksScreen({ onLogout }: { onLogout: () => void }) {
             <TouchableOpacity onPress={() => toggle(item)}>
               <Text>{item.status === 'DONE' ? '☑️' : '⬜️'}</Text>
             </TouchableOpacity>
-            <Text style={{ marginLeft: 8 }}>{item.title}</Text>
+            <Text style={{ marginLeft: 8 }} onPress={() => setOpen({ visible: true, task: item })}>{item.title}</Text>
             <View style={{ marginLeft: 'auto' }}>
               <Button title="Excluir" onPress={() => remove(item.id)} />
             </View>
           </View>
         )}
       />
+      <Modal visible={open.visible} animationType="slide" onRequestClose={() => setOpen({ visible: false })}>
+        {open.task && (
+          <TaskDetail
+            task={open.task}
+            onSave={(newTitle) => {
+              setTasks(prev => prev.map(p => p.id === open.task!.id ? { ...p, title: newTitle } as Task : p))
+              setOpen({ visible: false })
+            }}
+            onClose={() => setOpen({ visible: false })}
+          />
+        )}
+      </Modal>
     </View>
   )
 }

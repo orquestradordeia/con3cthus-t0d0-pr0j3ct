@@ -25,6 +25,7 @@ export async function register(email: string, password: string, name: string): P
 }
 
 export type Task = { id: string; title: string; status: 'PENDING'|'DONE' }
+export type UserProfile = { id: string; email: string; name: string; createdAt: string }
 
 export async function listTasks(): Promise<Task[]> {
   const res = await api.get('/tasks')
@@ -43,6 +44,11 @@ export async function toggleTask(t: Task): Promise<Task> {
 
 export async function deleteTask(id: string): Promise<void> {
   await api.delete(`/tasks/${id}`)
+}
+
+export async function me(): Promise<UserProfile> {
+  const res = await api.get('/users/me')
+  return res.data
 }
 
 
