@@ -10,6 +10,25 @@ function useAuth() {
   return { token, login, logout }
 }
 
+function Frame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen text-white">
+      <div className="sticky top-0 z-10 mx-auto max-w-6xl p-4">
+        <div className="glass-nav px-4 py-3 flex items-center gap-4">
+          <Link to="/" className="font-semibold tracking-tight">Conecthus</Link>
+          <div className="ml-auto flex items-center gap-3 text-sm">
+            <Link to="/tasks" className="hover:underline">Tarefas</Link>
+            <Link to="/login" className="hover:underline">Entrar</Link>
+          </div>
+        </div>
+      </div>
+      <main className="mx-auto max-w-6xl p-4">
+        {children}
+      </main>
+    </div>
+  )
+}
+
 function LoginPage({ onLogin }: { onLogin: (t: string) => void }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,13 +41,17 @@ function LoginPage({ onLogin }: { onLogin: (t: string) => void }) {
     navigate('/')
   }
   return (
-    <form onSubmit={submit} style={{ display: 'grid', gap: 12, maxWidth: 360, margin: '48px auto' }}>
-      <h1>Login</h1>
-      <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-      <input placeholder="Senha" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button type="submit">Entrar</button>
-      <Link to="/register">Registrar</Link>
-    </form>
+    <div className="grid place-items-center py-16">
+      <form onSubmit={submit} className="glass-card w-full max-w-md p-6 space-y-4">
+        <h1 className="text-2xl font-semibold">Acessar conta</h1>
+        <input className="input" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+        <input className="input" placeholder="Senha" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+        <div className="flex items-center justify-between">
+          <Link to="/register" className="text-sm text-white/80 hover:underline">Criar conta</Link>
+          <button className="btn-primary" type="submit">Entrar</button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -44,13 +67,17 @@ function RegisterPage() {
     navigate('/login')
   }
   return (
-    <form onSubmit={submit} style={{ display: 'grid', gap: 12, maxWidth: 360, margin: '48px auto' }}>
-      <h1>Registro</h1>
-      <input placeholder="Nome" value={name} onChange={e => setName(e.target.value)} />
-      <input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-      <input placeholder="Senha" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button type="submit">Criar conta</button>
-    </form>
+    <div className="grid place-items-center py-16">
+      <form onSubmit={submit} className="glass-card w-full max-w-md p-6 space-y-4">
+        <h1 className="text-2xl font-semibold">Criar conta</h1>
+        <input className="input" placeholder="Nome" value={name} onChange={e => setName(e.target.value)} />
+        <input className="input" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+        <input className="input" placeholder="Senha" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+        <div className="flex items-center justify-end">
+          <button className="btn-primary" type="submit">Cadastrar</button>
+        </div>
+      </form>
+    </div>
   )
 }
 
@@ -66,6 +93,7 @@ function TasksPage() {
     })()
   }, [from, to])
   const create = async () => {
+    if (!title.trim()) return
     const t = await createTask({ title })
     setTasks(prev => [t, ...prev])
     setTitle('')
@@ -99,24 +127,29 @@ function TasksPage() {
   }, [])
 
   return (
-    <div style={{ maxWidth: 720, margin: '24px auto', display: 'grid', gap: 12 }}>
-      <h1>Tarefas</h1>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <input placeholder="Nova tarefa" value={title} onChange={e => setTitle(e.target.value)} />
-        <button onClick={create}>Criar</button>
+    <div className="mx-auto max-w-3xl space-y-6 py-8">
+      <div className="glass-card p-6">
+        <h1 className="text-2xl font-semibold mb-4">Tarefas</h1>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input className="input" placeholder="Nova tarefa" value={title} onChange={e => setTitle(e.target.value)} />
+          <button onClick={create} className="btn-primary">Criar</button>
+        </div>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input className="input" type="date" value={from} onChange={e => setFrom(e.target.value)} />
+          <input className="input" type="date" value={to} onChange={e => setTo(e.target.value)} />
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <input type="date" value={from} onChange={e => setFrom(e.target.value)} />
-        <input type="date" value={to} onChange={e => setTo(e.target.value)} />
-      </div>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul className="glass-card divide-y divide-white/10">
         {tasks.map(t => (
-          <li key={t.id} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: 8, borderBottom: '1px solid #eee' }}>
-            <input type="checkbox" checked={t.status === 'DONE'} onChange={() => toggle(t)} />
-            <span>{t.title}</span>
-            <button onClick={() => remove(t.id)} style={{ marginLeft: 'auto' }}>Excluir</button>
+          <li key={t.id} className="flex items-center gap-3 p-4">
+            <input className="h-5 w-5 rounded border-white/30 bg-white/10" type="checkbox" checked={t.status === 'DONE'} onChange={() => toggle(t)} />
+            <span className={t.status === 'DONE' ? 'line-through text-white/70' : ''}>{t.title}</span>
+            <button onClick={() => remove(t.id)} className="ml-auto text-sm text-red-300 hover:text-red-200">Excluir</button>
           </li>
         ))}
+        {tasks.length === 0 && (
+          <li className="p-6 text-white/70">Sem tarefas ainda. Crie a primeira acima.</li>
+        )}
       </ul>
     </div>
   )
@@ -125,27 +158,48 @@ function TasksPage() {
 export function App() {
   const { token, login, logout } = useAuth()
 
-  useEffect(() => { /* conectar MQTT depois */ }, [])
-
   return (
-    <div>
-      <nav style={{ display: 'flex', gap: 12, padding: 12, borderBottom: '1px solid #eee' }}>
-        <Link to="/">Home</Link>
-        {!!token ? (
-          <>
-            <Link to="/tasks">Tarefas</Link>
-            <button onClick={logout}>Sair</button>
-          </>
-        ) : (
-          <Link to="/login">Login</Link>
-        )}
-      </nav>
-      <Routes>
-        <Route path="/" element={<div style={{ padding: 24 }}>Bem-vindo</div>} />
-        <Route path="/login" element={<LoginPage onLogin={login} />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/tasks" element={token ? <TasksPage /> : <LoginPage onLogin={login} />} />
-      </Routes>
+    <div className="min-h-screen text-white">
+      <header className="sticky top-0 z-10 mx-auto max-w-6xl p-4">
+        <div className="glass-nav px-4 py-3 flex items-center gap-4">
+          <Link to="/" className="font-semibold tracking-tight">Conecthus</Link>
+          <nav className="ml-auto flex items-center gap-3 text-sm">
+            {!!token ? (
+              <>
+                <Link to="/tasks" className="hover:underline">Tarefas</Link>
+                <button onClick={logout} className="text-white/80 hover:underline">Sair</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="hover:underline">Login</Link>
+                <Link to="/register" className="hover:underline">Registrar</Link>
+              </>
+            )}
+          </nav>
+        </div>
+      </header>
+      <main className="mx-auto max-w-6xl p-4">
+        <Routes>
+          <Route path="/" element={
+            <section className="grid lg:grid-cols-2 gap-6 items-center">
+              <div className="space-y-4">
+                <h1 className="text-4xl font-bold leading-tight">Organize suas tarefas com elegância</h1>
+                <p className="text-white/80">Crie, filtre e receba novas tarefas em tempo real via MQTT.</p>
+                <div className="flex gap-3">
+                  <Link to={token ? '/tasks' : '/login'} className="btn-primary">Começar</Link>
+                  <a href="/api" className="inline-flex items-center justify-center rounded-lg px-4 py-2 border border-white/20 text-white/90">Swagger</a>
+                </div>
+              </div>
+              <div className="glass-card p-6">
+                <p className="text-white/80">Dica: faça login para receber tarefas criadas via MQTT no topo da lista.</p>
+              </div>
+            </section>
+          } />
+          <Route path="/login" element={<LoginPage onLogin={login} />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/tasks" element={token ? <TasksPage /> : <LoginPage onLogin={login} />} />
+        </Routes>
+      </main>
     </div>
   )
 }

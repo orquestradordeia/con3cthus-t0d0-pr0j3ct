@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-grad-start: 15 23 42; /* slate-900 */
+  --bg-grad-end: 2 6 23;    /* slate-950 */
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: radial-gradient(1200px 800px at 10% 10%, rgba(var(--bg-grad-start)/0.5), rgba(var(--bg-grad-end)/1)),
+              radial-gradient(800px 600px at 90% 20%, rgba(99 102 241 / 0.25), transparent),
+              radial-gradient(900px 700px at 50% 90%, rgba(56 189 248 / 0.2), transparent);
+}
+
+/* Glassmorphism helpers */
+.glass {
+  @apply bg-white/10 dark:bg-white/10 backdrop-blur-md shadow-glass border border-white/20;
+}
+.glass-card {
+  @apply glass rounded-2xl;
+}
+.glass-nav {
+  @apply glass rounded-xl;
+}
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-lg bg-brand-600 text-white px-4 py-2 font-medium shadow hover:bg-brand-700 transition;
+}
+.input {
+  @apply w-full rounded-xl border-white/20 bg-white/10 text-white placeholder-white/60 focus:ring-brand-500 focus:border-brand-500;
+}
